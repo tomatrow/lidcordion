@@ -92,10 +92,6 @@ export const buttonIdMap = Object.fromEntries(
 	[...one, ...two, ...three, ...four].map((button) => [button.id, button])
 )
 
-export const layouts = {
-	Garmon: { name: "Garmon", layout: layout, buttonIdMap: buttonIdMap }
-}
-
 export const rowMap = { 1: "one", 2: "two", 3: "four", 4: "three" } as const
 export const rows = ["one", "two"] as const
 export const bassRows = ["four", "three"] as const

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tone } from "./data"
-	import { layouts, rows, bassRows, keyMapGarmon } from "./garmon-data"
+	import { layout, buttonIdMap, rows, bassRows, keyMapGarmon } from "./garmon-data"
 	import { createOscillator } from "./synth"
 
 	// Audio
@@ -10,11 +10,9 @@
 	gainNode.connect(audio.destination)
 
 	// State
-	let system = "Garmon"
 	let activeButtonIdMap = {}
 
-	let layout = layouts[system].layout
-	let map = layouts[system].buttonIdMap
+	let map = buttonIdMap
 
 	let key = 0
 
@@ -23,18 +21,9 @@
 	// Handlers
 	function playTone(id: string) {
 		let { frequency } = map[id]
-		let oscillator
 
-		if (!Array.isArray(frequency)) {
-			frequency = [frequency, frequency * 2]
-		}
-
-		oscillator = frequency.map((hz) => {
-			// const oscillator = audio.createOscillator()
-			// oscillator.type = oscillatorType
-			// oscillator.connect(gainNode)
-			// oscillator.frequency.value = hz * 2 ** (key / 12)
-			// oscillator.start()
+		let frequencyPair = Array.isArray(frequency) ? frequency : [frequency, frequency * 2]
+		let oscillator = frequencyPair.map((hz) => {
 			const oscillator = createOscillator({ context: audio, frequency: hz, destination: gainNode })
 
 			return oscillator
@@ -98,12 +87,6 @@
 		updateActiveButtonMap(id)
 	}
 
-	const handleChangeSystem = (event) => {
-		system = event.target.value
-		layout = layouts[system].layout
-		map = layouts[system].buttonIdMap
-	}
-
 	const handleChangeSound = (event) => {
 		oscillatorType = event.target.value
 	}
@@ -141,7 +124,7 @@
 
 	<div class="layout">
 		<div class="keyboard-side">
-			<div class="desktop-only accordion-layout garmon-layout {system}-garmon">
+			<div class="desktop-only accordion-layout garmon-layout garmon">
 				{#each rows as row (row)}
 					<div class="row {row}">
 						{#each layout[row] as button (button)}
@@ -180,14 +163,6 @@
 				</div>
 
 				<div class="flex">
-					<div>
-						<h3>System</h3>
-						<select value={system} on:change={handleChangeSystem}>
-							{#each Object.keys(layouts) as item (item)}
-								<option value={item}>{layouts[item].name}</option>
-							{/each}
-						</select>
-					</div>
 					<div>
 						<h3>Key</h3>
 						<div class="scale">
