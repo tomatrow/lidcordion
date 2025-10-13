@@ -3,6 +3,8 @@
 	import { layout, buttonIdMap, rows, bassRows, keyMapGarmon } from "./garmon-data"
 	import { createOscillator } from "./synth"
 
+	export let gain = 0
+
 	// Audio
 	const audio = new window.AudioContext()
 	const gainNode = audio.createGain()
@@ -10,6 +12,7 @@
 	gainNode.connect(audio.destination)
 
 	// State
+
 	let activeButtonIdMap = {}
 
 	let map = buttonIdMap
@@ -24,7 +27,11 @@
 
 		let frequencyPair = Array.isArray(frequency) ? frequency : [frequency, frequency * 2]
 		let oscillator = frequencyPair.map((hz) => {
-			const oscillator = createOscillator({ context: audio, frequency: hz, destination: gainNode })
+			const oscillator = createOscillator({
+				context: audio,
+				frequency: hz,
+				destination: gainNode
+			})
 
 			return oscillator
 		})
@@ -48,6 +55,14 @@
 
 			activeButtonIdMap[id] = { oscillator, ...map[id] }
 		}
+	}
+
+	$: {
+		let g = gain
+
+		Object.values(activeButtonIdMap).forEach(({ oscillator }) =>
+			oscillator.forEach((o) => o.update(g))
+		)
 	}
 
 	function handleKeyPressNote(e) {

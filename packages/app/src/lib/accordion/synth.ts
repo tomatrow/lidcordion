@@ -1,10 +1,12 @@
-/**
- * @param {Object} options
- * @param {AudioContext} options.context
- * @param {number} options.frequency
- * @param {AudioNode} options.destination
- */
-export function createOscillator({ context, frequency, destination }) {
+export function createOscillator({
+	context,
+	frequency,
+	destination
+}: {
+	context: AudioContext
+	frequency: number
+	destination: AudioNode
+}) {
 	const sawOsc = context.createOscillator()
 	const squareOsc = context.createOscillator()
 	const squareOctOsc = context.createOscillator()
@@ -51,6 +53,9 @@ export function createOscillator({ context, frequency, destination }) {
 	envelope.gain.setTargetAtTime(1, context.currentTime, 0.05)
 
 	return {
+		update: (gain: number) => {
+			envelope.gain.setTargetAtTime(gain, context.currentTime, 1)
+		},
 		stop: () => {
 			envelope.gain.setTargetAtTime(0, context.currentTime, 0.05)
 			sawOsc.stop(context.currentTime + 0.2)
