@@ -28,10 +28,11 @@ int main(int argc, const char * argv[]) {
                 fprintf(stderr, "Error reading sensor\n");
             } else if (fabs(currentAngle - lastAngle) >= changeThreshold) {
                 printf("%.0f\n", currentAngle);
+				fflush(stdout);
                 lastAngle = currentAngle;
             }
             
-            // Poll every 16.67ms (60 Hz)                                                                             
+			// Poll every 16.67ms (60 Hz)                                                                           
 			usleep(1000000 / 60);
         }
     }
