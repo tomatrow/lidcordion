@@ -3,23 +3,22 @@
 	import { layout, buttonIdMap, rows, bassRows, keyMapGarmon } from "./garmon-data"
 	import { createOscillator } from "./synth"
 
-	export let gain = 0
-
 	// Audio
-	const audio = new window.AudioContext()
+	const audio = new AudioContext()
 	const gainNode = audio.createGain()
 	gainNode.gain.value = 0.1
 	gainNode.connect(audio.destination)
 
 	// State
+	let { gain }: { gain: number } = $props()
 
-	let activeButtonIdMap = {}
+	let key = $state(0)
 
-	let map = buttonIdMap
+	let activeButtonIdMap = $state({})
 
-	let key = 0
+	let map = $state(buttonIdMap)
 
-	let oscillatorType = "sawtooth"
+	let oscillatorType = $state<"square" | "sawtooth" | "triangle" | "sine">("sawtooth")
 
 	// Handlers
 	function playTone(id: string) {
@@ -39,7 +38,7 @@
 		return { oscillator }
 	}
 
-	function stopTone(id) {
+	function stopTone(id: string) {
 		const { oscillator } = activeButtonIdMap[id]
 
 		if (Array.isArray(oscillator)) {
@@ -55,14 +54,6 @@
 
 			activeButtonIdMap[id] = { oscillator, ...map[id] }
 		}
-	}
-
-	$: {
-		let g = gain
-
-		Object.values(activeButtonIdMap).forEach(({ oscillator }) =>
-			oscillator.forEach((o) => o.update(g))
-		)
 	}
 
 	function handleKeyPressNote(e) {
@@ -98,10 +89,6 @@
 		}
 	}
 
-	const handleClickNote = (id) => {
-		updateActiveButtonMap(id)
-	}
-
 	const handleChangeSound = (event) => {
 		oscillatorType = event.target.value
 	}
@@ -118,117 +105,89 @@
 		activeButtonIdMap = {}
 	}
 
-	const transposeUp = () => {
-		key += 1
+	function transposeUp() {
+		key++
 	}
-	const transposeDown = () => {
-		key -= 1
+	function transposeDown() {
+		key--
 	}
+
+	// effects
+	$effect(() => {
+		Object.values(activeButtonIdMap).forEach(({ oscillator }) =>
+			oscillator.forEach((o) => o.update(gain))
+		)
+	})
 </script>
 
 <svelte:body
-	on:keypress={handleKeyPressNote}
-	on:keyup={handleKeyUpNote}
-	on:mouseup={handleClearAllNotes}
+	onkeypress={handleKeyPressNote}
+	onkeyup={handleKeyUpNote}
+	onmouseup={handleClearAllNotes}
 />
 
-<main>
-	<div class="mobile-only">
-		<div class="banner">This app is only available on a desktop!</div>
-	</div>
-
-	<div class="layout">
-		<div class="keyboard-side">
-			<div class="desktop-only accordion-layout garmon-layout garmon">
-				{#each rows as row (row)}
-					<div class="row {row}">
-						{#each layout[row] as button (button)}
-							<div
-								class={`circle ${activeButtonIdMap[button.id] ? "active" : ""} ${
-									button.name.includes("♭") ? "accidental" : ""
-								}`}
-								id={button.id}
-								on:mousedown={() => handleClickNote(button.id)}
-							>
-								{button.name}
-							</div>
-						{/each}
-					</div>
-				{/each}
-			</div>
-		</div>
-
-		<div class="information-side">
-			<div class="information">
-				<header class="header">
-					<h1 class="title">Garmon</h1>
-					<div class="subtitle">Play the garmon with your computer keyboard</div>
-				</header>
-
-				<div>
-					<h3>How to use</h3>
-					<ul>
-						<li>Each key on the keyboard corresponds to a button on the accordion.</li>
-						<li>
-							The treble side buttons begin with <kbd>z</kbd>, and <kbd>s</kbd>
-						</li>
-						<li>The 16 bass buttons begin with <kbd>3</kbd>, and <kbd>e</kbd></li>
-						<li>Use the key buttons to change the key (the note names will not change)</li>
-					</ul>
-				</div>
-
-				<div class="flex">
-					<div>
-						<h3>Key</h3>
-						<div class="scale">
-							<h4>{key >= 0 ? "+" : ""}{key} ({Object.keys(tone)[((key % 12) + 12) % 12]})</h4>
-							<!-- regular modulo doesn't work with negative?? -->
-							<div>
-								<button on:click={transposeDown}>-</button>
-								<button on:click={transposeUp}>+</button>
-							</div>
-						</div>
-					</div>
-					<div>
-						<h3>Sound</h3>
-						<select value={oscillatorType} on:change={handleChangeSound}>
-							<option value="square">Square</option>
-							<option value="sawtooth">Sawtooth</option>
-							<option value="triangle">Triangle</option>
-							<option value="sine">Sine</option>
-						</select>
-					</div>
-				</div>
-
-				<div class="desktop-only">
-					<div class="currently-playing">
-						{#each Object.entries(activeButtonIdMap) as [id, value]}
-							<div class="flex col">
-								<div class="circle note">{value.name}</div>
-								<div><small>Row: {id.split("-")[0]}<br /> Col: {id.split("-")[1]}</small></div>
-							</div>
-						{/each}
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="bass-side">
-			<div class="desktop-only accordion-layout">
-				{#each bassRows as row}
-					<div class="row {row}">
-						{#each layout[row] as button}
-							<div
-								class={`circle ${activeButtonIdMap[button.id] ? "active" : ""}`}
-								id={button.id}
-								on:mousedown={handleClickNote(button.id)}
-							>
-								{button.name}
-							</div>
-						{/each}
-					</div>
-				{/each}
-			</div>
+<div>
+	<h3>Key</h3>
+	<div class="scale">
+		<h4>{key >= 0 ? "+" : ""}{key} ({Object.keys(tone)[((key % 12) + 12) % 12]})</h4>
+		<!-- regular modulo doesn't work with negative?? -->
+		<div>
+			<button onclick={transposeDown}>-</button>
+			<button onclick={transposeUp}>+</button>
 		</div>
 	</div>
-</main>
+</div>
+
+<div>
+	<h3>Sound</h3>
+	<select value={oscillatorType} onchange={handleChangeSound}>
+		<option value="square">Square</option>
+		<option value="sawtooth">Sawtooth</option>
+		<option value="triangle">Triangle</option>
+		<option value="sine">Sine</option>
+	</select>
+</div>
+
+<div class="keyboard-side">
+	{#each rows as row (row)}
+		<div class="row {row}">
+			{#each layout[row] as { id, name } (id)}
+				<div
+					{id}
+					class:active={activeButtonIdMap[id]}
+					class:accidental={name.includes("♭")}
+					class="circle"
+				>
+					{name}
+				</div>
+			{/each}
+		</div>
+	{/each}
+</div>
+
+<div class="currently-playing">
+	{#each Object.entries(activeButtonIdMap) as [id, value]}
+		<div class="flex col">
+			<div class="circle note">{value.name}</div>
+			<div><small>Row: {id.split("-")[0]}<br /> Col: {id.split("-")[1]}</small></div>
+		</div>
+	{/each}
+</div>
+
+<div class="bass-side">
+	{#each bassRows as row (row)}
+		<div class="row {row}">
+			{#each layout[row] as { id, name } (id)}
+				<div {id} class="circle" class:active={activeButtonIdMap[id]}>
+					{name}
+				</div>
+			{/each}
+		</div>
+	{/each}
+</div>
+
+<style>
+	.active {
+		background: red;
+	}
+</style>
