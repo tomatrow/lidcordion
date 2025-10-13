@@ -19,9 +19,9 @@
         _hidDevice = [self findLidAngleSensor];
         if (_hidDevice) {
             IOHIDDeviceOpen(_hidDevice, kIOHIDOptionsTypeNone);
-            NSLog(@"[LidAngleSensor] Successfully initialized lid angle sensor");
+//            NSLog(@"[LidAngleSensor] Successfully initialized lid angle sensor");
         } else {
-            NSLog(@"[LidAngleSensor] Failed to find lid angle sensor");
+            fprintf(stderr, "[LidAngleSensor] Failed to find lid angle sensor\n");
         }
     }
     return self;
@@ -38,12 +38,12 @@
 - (IOHIDDeviceRef)findLidAngleSensor {
     IOHIDManagerRef manager = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
     if (!manager) {
-        NSLog(@"[LidAngleSensor] Failed to create IOHIDManager");
+        fprintf(stderr, "[LidAngleSensor] Failed to create IOHIDManager\n");
         return NULL;
     }
     
     if (IOHIDManagerOpen(manager, kIOHIDOptionsTypeNone) != kIOReturnSuccess) {
-        NSLog(@"[LidAngleSensor] Failed to open IOHIDManager");
+        fprintf(stderr, "[LidAngleSensor] Failed to open IOHIDManager\n");
         CFRelease(manager);
         return NULL;
     }
@@ -62,7 +62,7 @@
     IOHIDDeviceRef device = NULL;
     
     if (devices && CFSetGetCount(devices) > 0) {
-        NSLog(@"[LidAngleSensor] Found %ld matching lid angle sensor device(s)", CFSetGetCount(devices));
+//        NSLog(@"[LidAngleSensor] Found %ld matching lid angle sensor device(s)", CFSetGetCount(devices));
         
         const void **deviceArray = malloc(sizeof(void*) * CFSetGetCount(devices));
         CFSetGetValues(devices, deviceArray);
@@ -85,15 +85,15 @@
                 if (result == kIOReturnSuccess && reportLength >= 3) {
                     // This device works! Use it.
                     device = (IOHIDDeviceRef)CFRetain(testDevice);
-                    NSLog(@"[LidAngleSensor] Successfully found working lid angle sensor device (index %ld)", i);
+//                    NSLog(@"[LidAngleSensor] Successfully found working lid angle sensor device (index %ld)", i);
                     IOHIDDeviceClose(testDevice, kIOHIDOptionsTypeNone); // Close for now, will reopen in init
                     break;
                 } else {
-                    NSLog(@"[LidAngleSensor] Device %ld failed to read (result: %d, length: %ld)", i, result, reportLength);
+                    fprintf(stderr, "[LidAngleSensor] Device %ld failed to read (result: %d, length: %ld)\n", i, result, reportLength);
                     IOHIDDeviceClose(testDevice, kIOHIDOptionsTypeNone);
                 }
             } else {
-                NSLog(@"[LidAngleSensor] Failed to open device %ld", i);
+                fprintf(stderr, "[LidAngleSensor] Failed to open device %ld\n", i);
             }
         }
         
@@ -140,10 +140,10 @@
     if (!_hidDevice) {
         _hidDevice = [self findLidAngleSensor];
         if (_hidDevice) {
-            NSLog(@"[LidAngleSensor] Starting lid angle updates");
+//            NSLog(@"[LidAngleSensor] Starting lid angle updates");
             IOHIDDeviceOpen(_hidDevice, kIOHIDOptionsTypeNone);
         } else {
-            NSLog(@"[LidAngleSensor] Lid angle sensor is not supported");
+            fprintf(stderr, "[LidAngleSensor] Lid angle sensor is not supported\n");
         }
     }
 }
