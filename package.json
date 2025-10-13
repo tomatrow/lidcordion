@@ -1,0 +1,12 @@
+{
+	"packageManager": "pnpm@9.15.9",
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild"
+		]
+	},
+	"devDependencies": {
+		"svelte-language-server": "^0.17.21",
+		"typescript": "^5.9.2"
+	}
+}
