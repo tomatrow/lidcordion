@@ -8,7 +8,8 @@
 
 	$effect(() => {
 		const id = setInterval(() => {
-			velocity = ((lidAngle ?? 0) - (lastLidAngle ?? lidAngle ?? 0)) / interval
+			const newVelocity = ((lidAngle ?? 0) - (lastLidAngle ?? lidAngle ?? 0)) / interval
+			velocity = Math.min(Math.max(-1, newVelocity), 1)
 			lastLidAngle = lidAngle
 		}, interval)
 
