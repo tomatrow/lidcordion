@@ -1,2 +1,18 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	let lidAngle = $state(-1)
+
+	$effect(() => {
+		const eventSource = new EventSource("/api/lidangle")
+
+		eventSource.onmessage = (event) => {
+			const newLidAngle = parseFloat(event.data)
+			if (Number.isFinite(newLidAngle)) lidAngle = newLidAngle
+		}
+
+		return () => {
+			eventSource.close()
+		}
+	})
+</script>
+
+<p>{lidAngle}</p>
