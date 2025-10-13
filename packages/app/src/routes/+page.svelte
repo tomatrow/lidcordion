@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Garmon } from "$lib/accordion"
+
 	let lidAngle = $state(-1)
 
 	$effect(() => {
@@ -16,3 +18,5 @@
 </script>
 
 <p>{lidAngle}</p>
+
+<Garmon />
