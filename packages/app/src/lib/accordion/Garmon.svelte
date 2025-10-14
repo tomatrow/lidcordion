@@ -24,16 +24,20 @@
 	function playTone(id: string) {
 		let { frequency } = map[id]
 
-		let frequencyPair = Array.isArray(frequency) ? frequency : [frequency, frequency * 2]
-		let oscillator = frequencyPair.map((hz) => {
-			const oscillator = createOscillator({
+		let frequencyArray: number[]
+		if (typeof frequency === "number") {
+			frequencyArray = [frequency, frequency * 2]
+		} else {
+			frequencyArray = frequency as unknown as number[]
+		}
+
+		let oscillator = frequencyArray.map((hz) =>
+			createOscillator({
 				context: audio,
 				frequency: hz,
 				destination: gainNode
 			})
-
-			return oscillator
-		})
+		)
 
 		return { oscillator }
 	}
@@ -48,7 +52,7 @@
 		}
 	}
 
-	function updateActiveButtonMap(id) {
+	function updateActiveButtonMap(id: string) {
 		if (!activeButtonIdMap[id]) {
 			const { oscillator } = playTone(id)
 
@@ -56,11 +60,11 @@
 		}
 	}
 
-	function handleKeyPressNote(e) {
-		if (e.key === "/" || e.key === "'") {
+	function handleKeyPressNote(event: KeyboardEvent) {
+		if (event.key === "/" || event.key === "'") {
 			event.preventDefault()
 		}
-		const key = `${e.key}`.toLowerCase() || e.key
+		const key = `${event.key}`.toLowerCase() || event.key
 		const buttonMapData = keyMapGarmon[key]
 
 		if (buttonMapData) {
@@ -71,8 +75,8 @@
 		}
 	}
 
-	function handleKeyUpNote(e) {
-		const key = `${e.key}`.toLowerCase() || e.key
+	function handleKeyUpNote(event: KeyboardEvent) {
+		const key = `${event.key}`.toLowerCase() || event.key
 		const buttonMapData = keyMapGarmon[key]
 
 		if (buttonMapData) {
@@ -87,10 +91,6 @@
 				activeButtonIdMap = newActiveButtonIdMap
 			}
 		}
-	}
-
-	const handleChangeSound = (event) => {
-		oscillatorType = event.target.value
 	}
 
 	const handleClearAllNotes = () => {
@@ -126,37 +126,31 @@
 	onmouseup={handleClearAllNotes}
 />
 
-<div>
-	<h3>Key</h3>
-	<div class="scale">
-		<h4>{key >= 0 ? "+" : ""}{key} ({Object.keys(tone)[((key % 12) + 12) % 12]})</h4>
-		<!-- regular modulo doesn't work with negative?? -->
-		<div>
-			<button onclick={transposeDown}>-</button>
-			<button onclick={transposeUp}>+</button>
-		</div>
+<div class="scale">
+	<h4>{key >= 0 ? "+" : ""}{key} ({Object.keys(tone)[((key % 12) + 12) % 12]})</h4>
+	<!-- regular modulo doesn't work with negative?? -->
+	<div>
+		<button onclick={transposeDown}>-</button>
+		<button onclick={transposeUp}>+</button>
 	</div>
 </div>
 
-<div>
-	<h3>Sound</h3>
-	<select value={oscillatorType} onchange={handleChangeSound}>
-		<option value="square">Square</option>
-		<option value="sawtooth">Sawtooth</option>
-		<option value="triangle">Triangle</option>
-		<option value="sine">Sine</option>
-	</select>
-</div>
+<select bind:value={oscillatorType}>
+	<option value="square">Square</option>
+	<option value="sawtooth">Sawtooth</option>
+	<option value="triangle">Triangle</option>
+	<option value="sine">Sine</option>
+</select>
 
-<div class="keyboard-side">
-	{#each rows as row (row)}
+<div class="keyboard">
+	{#each ["one", "two", "four", "three"].reverse() as row (row)}
 		<div class="row {row}">
 			{#each layout[row] as { id, name } (id)}
 				<div
 					{id}
+					class="circle"
 					class:active={activeButtonIdMap[id]}
 					class:accidental={name.includes("♭")}
-					class="circle"
 				>
 					{name}
 				</div>
@@ -165,29 +159,30 @@
 	{/each}
 </div>
 
-<div class="currently-playing">
-	{#each Object.entries(activeButtonIdMap) as [id, value]}
-		<div class="flex col">
-			<div class="circle note">{value.name}</div>
-			<div><small>Row: {id.split("-")[0]}<br /> Col: {id.split("-")[1]}</small></div>
-		</div>
-	{/each}
-</div>
-
-<div class="bass-side">
-	{#each bassRows as row (row)}
-		<div class="row {row}">
-			{#each layout[row] as { id, name } (id)}
-				<div {id} class="circle" class:active={activeButtonIdMap[id]}>
-					{name}
-				</div>
-			{/each}
-		</div>
-	{/each}
-</div>
-
 <style>
-	.active {
-		background: red;
+	.keyboard {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+
+		.row {
+			display: flex;
+			gap: 0.5rem;
+
+			.circle {
+				border-radius: 50%;
+				width: 4rem;
+				height: 4rem;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				background: gray;
+				transition: all 200ms ease-in-out;
+
+				&.active {
+					background: red;
+				}
+			}
+		}
 	}
 </style>

@@ -53,10 +53,10 @@ export function createOscillator({
 	envelope.gain.setTargetAtTime(1, context.currentTime, 0.05)
 
 	return {
-		update: (gain: number) => {
+		update(gain: number) {
 			envelope.gain.setTargetAtTime(gain, context.currentTime, 1)
 		},
-		stop: () => {
+		stop() {
 			envelope.gain.setTargetAtTime(0, context.currentTime, 0.05)
 			sawOsc.stop(context.currentTime + 0.2)
 			squareOsc.stop(context.currentTime + 0.2)
