@@ -1,18 +1,17 @@
 <script lang="ts">
-	import { Garmon } from "$lib/accordion"
 	import { Tween } from "svelte/motion"
+	import { Garmon } from "$lib/accordion"
 
 	let lidAngle = $state<number>()
 	let lastLidAngle = $state<number>()
 	const interval = 1000 / 60
-	let velocity = new Tween(0, {
-		duration: 60
-	}) // degrees/microsecond(?)
+	let velocity = new Tween(0) // degrees/microsecond(?)
 
 	$effect(() => {
 		const id = setInterval(() => {
 			const newVelocity = ((lidAngle ?? 0) - (lastLidAngle ?? lidAngle ?? 0)) / interval
-			velocity.target = clamp(newVelocity, -1, 1)
+			const newClampedVelocity = clamp(newVelocity, -1, 1)
+			velocity.set(newClampedVelocity, { duration: 60 })
 			lastLidAngle = lidAngle
 		}, interval)
 
@@ -46,8 +45,22 @@
 	}
 </script>
 
-<p>{lidAngle}</p>
-<p>{velocity.target}</p>
-<p>{gain}</p>
+<header>
+	<p>{lidAngle ?? "#"}°</p>
+	<p><b>v<sub>t</sub></b> {velocity.target}</p>
+	<p><b>v<sub>c</sub></b> {round(velocity.current, 3)}</p>
+	<p><b>gain</b> {gain}</p>
+</header>
 
 <Garmon {gain} />
+
+<style>
+	header {
+		display: flex;
+		gap: 0.5rem;
+
+		p {
+			width: 5rem;
+		}
+	}
+</style>
