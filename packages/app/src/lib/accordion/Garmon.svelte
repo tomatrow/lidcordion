@@ -34,7 +34,7 @@
 		let oscillator = frequencyArray.map((hz) =>
 			createOscillator({
 				context: audio,
-				frequency: hz,
+				frequency: hz * 2 ** (key / 12),
 				destination: gainNode
 			})
 		)
@@ -143,8 +143,24 @@
 </select>
 
 <div class="keyboard">
-	{#each ["one", "two", "four", "three"].reverse() as row (row)}
+	{#each bassRows.flat().reverse() as row (row)}
 		<div class="row {row}">
+			<p>base {row}</p>
+			{#each layout[row] as { id, name } (id)}
+				<div
+					{id}
+					class="circle"
+					class:active={activeButtonIdMap[id]}
+					class:accidental={name.includes("♭")}
+				>
+					{name}
+				</div>
+			{/each}
+		</div>
+	{/each}
+	{#each rows.flat().reverse() as row (row)}
+		<div class="row {row}">
+			<p>treble {row}</p>
 			{#each layout[row] as { id, name } (id)}
 				<div
 					{id}
