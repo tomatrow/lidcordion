@@ -31,13 +31,15 @@
 			frequencyArray = frequency as unknown as number[]
 		}
 
-		let oscillator = frequencyArray.map((hz) =>
-			createOscillator({
+		let oscillator = frequencyArray.map((hz) => {
+			const transposedFrequency = hz * 2 ** (key / 12)
+
+			return createOscillator({
 				context: audio,
-				frequency: hz * 2 ** (key / 12),
+				frequency: transposedFrequency,
 				destination: gainNode
 			})
-		)
+		})
 
 		return { oscillator }
 	}
