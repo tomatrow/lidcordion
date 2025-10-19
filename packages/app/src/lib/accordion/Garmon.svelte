@@ -17,7 +17,7 @@
 	let activeButtonIdMap = $state({})
 
 	let map = $state(buttonIdMap)
-
+	let orientation = $state<"horizontal" | "vertical">("horizontal")
 	let oscillatorType = $state<"square" | "sawtooth" | "triangle" | "sine">("sawtooth")
 
 	// Handlers
@@ -126,25 +126,29 @@
 	onmouseup={handleClearAllNotes}
 />
 
-<div class="scale">
-	<h4>{key >= 0 ? "+" : ""}{key} ({Object.keys(tone)[((key % 12) + 12) % 12]})</h4>
-	<!-- regular modulo doesn't work with negative?? -->
-	<div>
+<section class="controls">
+	<div class="scale">
+		<h4>{key >= 0 ? "+" : ""}{key} ({Object.keys(tone)[((key % 12) + 12) % 12]})</h4>
 		<button onclick={transposeDown}>-</button>
 		<button onclick={transposeUp}>+</button>
 	</div>
-</div>
 
-<select bind:value={oscillatorType}>
-	<option value="square">Square</option>
-	<option value="sawtooth">Sawtooth</option>
-	<option value="triangle">Triangle</option>
-	<option value="sine">Sine</option>
-</select>
+	<select class="wave" bind:value={oscillatorType}>
+		<option value="square">Square</option>
+		<option value="sawtooth">Sawtooth</option>
+		<option value="triangle">Triangle</option>
+		<option value="sine">Sine</option>
+	</select>
+
+	<select class="horizontal" bind:value={orientation}>
+		<option value="horizontal">horizontal</option>
+		<option value="vertical">vertical</option>
+	</select>
+</section>
 
 <div class="keyboard">
 	{#each bassRows.flat().reverse() as row (row)}
-		<div class="row row--base row--{row}">
+		<div class="row row--base row--{row} row--{orientation}">
 			<p>base {row}</p>
 			{#each layout[row] as { id, name } (id)}
 				<div
@@ -159,7 +163,7 @@
 		</div>
 	{/each}
 	{#each rows.flat().reverse() as row (row)}
-		<div class="row row--treble row--{row}">
+		<div class="row row--treble row--{row} row--{orientation}">
 			<p>treble {row}</p>
 			{#each layout[row] as { id, name } (id)}
 				<div
@@ -176,6 +180,18 @@
 </div>
 
 <style>
+	.controls {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.scale {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
 	.keyboard {
 		display: flex;
 		flex-direction: column;
@@ -184,6 +200,10 @@
 		.row {
 			display: flex;
 			gap: 0.5rem;
+
+			p {
+				width: 5rem;
+			}
 
 			.circle {
 				border-radius: 50%;
@@ -198,6 +218,18 @@
 				&.active {
 					background: red;
 				}
+			}
+
+			&.row--two {
+				margin-top: 1.5rem;
+			}
+
+			&:where(.row--four, .row--two) p {
+				margin-right: 2.25rem;
+			}
+
+			&.row--vertical .circle {
+				transform: rotate(-90deg);
 			}
 		}
 	}
