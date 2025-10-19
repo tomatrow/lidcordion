@@ -144,7 +144,7 @@
 
 <div class="keyboard">
 	{#each bassRows.flat().reverse() as row (row)}
-		<div class="row {row}">
+		<div class="row row--base row--{row}">
 			<p>base {row}</p>
 			{#each layout[row] as { id, name } (id)}
 				<div
@@ -159,7 +159,7 @@
 		</div>
 	{/each}
 	{#each rows.flat().reverse() as row (row)}
-		<div class="row {row}">
+		<div class="row row--treble row--{row}">
 			<p>treble {row}</p>
 			{#each layout[row] as { id, name } (id)}
 				<div
