@@ -54,7 +54,7 @@ export function createOscillator({
 
 	return {
 		update(gain: number) {
-			envelope.gain.setTargetAtTime(gain, context.currentTime, 0.5)
+			envelope.gain.setTargetAtTime(gain, context.currentTime, 0.2)
 		},
 		stop() {
 			envelope.gain.setTargetAtTime(0, context.currentTime, 0.2)
