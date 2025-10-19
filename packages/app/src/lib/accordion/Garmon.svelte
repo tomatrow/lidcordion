@@ -18,7 +18,6 @@
 
 	let map = $state(buttonIdMap)
 	let orientation = $state<"horizontal" | "vertical">("horizontal")
-	let oscillatorType = $state<"square" | "sawtooth" | "triangle" | "sine">("sawtooth")
 
 	// Handlers
 	function playTone(id: string) {
@@ -134,13 +133,6 @@
 		<button onclick={transposeDown}>-</button>
 		<button onclick={transposeUp}>+</button>
 	</div>
-
-	<select class="wave" bind:value={oscillatorType}>
-		<option value="square">Square</option>
-		<option value="sawtooth">Sawtooth</option>
-		<option value="triangle">Triangle</option>
-		<option value="sine">Sine</option>
-	</select>
 
 	<select class="horizontal" bind:value={orientation}>
 		<option value="horizontal">horizontal</option>
