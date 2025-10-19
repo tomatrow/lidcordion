@@ -34,7 +34,8 @@
 		}
 	})
 
-	let gain = $derived(round(1.5 * Math.abs(velocity.current), 3))
+	let gainScale = $state(1.5)
+	let gain = $derived(round(gainScale * Math.abs(velocity.current), 3))
 
 	function clamp(value: number, min: number, max: number) {
 		return Math.min(Math.max(value, min), max)
@@ -50,6 +51,9 @@
 	<p><b>v<sub>t</sub></b> {velocity.target}</p>
 	<p><b>v<sub>c</sub></b> {round(velocity.current, 3)}</p>
 	<p><b>gain</b> {gain}</p>
+	<p>
+		<b>g<sub>c</sub></b> <input type="number" bind:value={gainScale} min={0} max={3} step={0.5} />
+	</p>
 </header>
 
 <Garmon {gain} />
@@ -58,9 +62,14 @@
 	header {
 		display: flex;
 		gap: 0.5rem;
+		align-items: center;
 
 		p {
-			width: 5rem;
+			min-width: 5.5rem;
+		}
+
+		input {
+			width: auto;
 		}
 	}
 </style>
